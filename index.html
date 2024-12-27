@@ -3,6 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=0.9">
+ <title>Database Example</title>
+</head>
+<body>
+  <h1>Users</h1>
+  <ul id="user-list"></ul>
+
+  <script>
+    // Загружаем данные из JSON-файла на GitHub
+    fetch('https://raw.githubusercontent.com/username/trenercont.github.iotrenercont.github.io
+/main/users.json')
+      .then(response => response.json())
+      .then(data => {
+        const userList = document.getElementById('user-list');
+        data.forEach(user => {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${user.name} - ${user.email}`;
+          userList.appendChild(listItem);
+        });
+      })
+      .catch(error => console.error('Error:', error));
+  </script>
+</body>
+</html>
   <title>Тренер Контейнер</title>
   <style>
     body {
