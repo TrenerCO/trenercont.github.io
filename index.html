@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=0.9">
+  <title>Тренер Контейнер</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.8em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    button {
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: white;
+    }
+    button:disabled {
+      background-color: #ccc;
+    }
+    input[type="number"], input[type="date"], input[type="text"] {
+      padding: 6px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .filter-container {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .filter-container label {
+      font-size: 14px;
+    }
+    .operations-table {
+      margin-top: 30px;
+    }
+    .operations-table th, .operations-table td {
+      text-align: left;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Тренер Контейнер</h1>
+
+    <!-- Фильтрация по дате -->
+    <div class="filter-container">
+      <div>
+        <label for="filterDate">Фильтровать по дате:</label>
+        <input type="date" id="filterDate" onchange="applyDateFilter()">
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Промокод</th>
+          <th>ФИО</th>
+          <th>Общее зачисление</th>
+          <th>Осталось</th>
+          <th>Зачислить / Списать</th>
+          <th>Комментарии</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="promoTable">
+        <!-- Промокоды будут добавляться сюда динамически -->
+      </tbody>
+    </table>
+
+    <div class="operations-table">
+      <h2>Реестр операций</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Промокод</th>
+            <th>ФИО</th>
+            <th>Тип операции</th>
+            <th>Сумма</th>
+            <th>Комментарий</th>
+          </tr>
+        </thead>
+        <tbody id="operationsTable">
+          <!-- Операции будут добавляться сюда -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Обновленный список всех пользователей с промокодами
+    const users = [
+      { "promokod": "Komissarov_DDX", "fio": "Комиссаров Константин", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Grishin_DDX", "fio": "Гришин Евгений", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Tuchina_DDX", "fio": "Тучина Виктория", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Kazantseva25_DDX", "fio": "Казанцева Екатрина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Goncharov_DDX", "fio": "Гончаров Никита", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Ramonova_DDX", "fio": "Рамонова Кристина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Idrisova_DDX", "fio": "Идрисова Алина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Lepyokhina_DDX", "fio": "Лепёхина Юлия", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Moldavanov_DDX", "fio": "Молдаванов Павел", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Podolyak_DDX", "fio": "Подоляк Денис", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Kolyakin_DDX", "fio": "Колякин Александр", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Tsiklauri_DDX", "fio": "Циклаури Леван", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Shorov_DDX", "fio": "Шоров Даниил", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Ryndina_DDX", "fio": "Рындина Жанна", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Valentin_DDX", "fio": "Валентин", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Larina_DDX", "fio": "Ларина Полина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Fatykhov_DDX", "fio": "Фатыхов Павел", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Prischepov_DDX", "fio": "Прищепов Артур Игоревич", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Ivanova_DDX", "fio": "Иванова Виктория", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Sotnikova_DDX", "fio": "Сотникова Людмила", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Bakanov_DDX", "fio": "Баканов Андрей", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Kazantseva_DDX", "fio": "Казанцева Арина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Danenko_DDX", "fio": "Даненко Всеволод", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Chernogorets_DDX", "fio": "Черногорец Андрей", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Rukhlinskaya_DDX", "fio": "Рухлинская Софья", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Volkov_DDX", "fio": "Волков Дмитрий", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Nikolaeva_DDX", "fio": "Николаева Екатерина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Fortuna_DDX", "fio": "Фортуна Ирина", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Verezgov_DDX", "fio": "Верезгов Игорь", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Sivokho_DDX", "fio": "Сивохо Максим", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Belyaeva_DDX", "fio": "Беляева Татьяна", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Moldavanova_DDX", "fio": "Молдаванова Инна", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Nikulin_DDX", "fio": "Никулин Дмитрий", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Koroteeva_DDX", "fio": "Коротеева Дарья", "totalAdded": 0, "totalDeducted": 0, "operations": [] },
+      { "promokod": "Gamov_DDX", "fio": "Гамов Александр", "totalAdded": 0, "totalDeducted": 0, "operations": [] }
+    ];
+
+    // Функция отображения таблицы с промокодами
+    function displayPromoCodes(filteredUsers) {
+      const promoTable = document.getElementById('promoTable');
+      promoTable.innerHTML = ''; // Очистить таблицу перед обновлением
+
+      filteredUsers.forEach((user, index) => {
+        const remainingBalance = user.totalAdded - user.totalDeducted;  // Расчет остатка бонусов
+        const row = document.createElement('tr');
+        row.innerHTML = ` 
+          <td>${index + 1}</td>
+          <td>${user.promokod}</td>
+          <td>${user.fio}</td>
+          <td>${user.totalAdded}</td>
+          <td>${remainingBalance}</td>
+          <td>
+            <input type="number" id="bonusInput${index}" placeholder="Введите бонус">
+          </td>
+          <td>
+            <input type="text" id="commentInput${index}" placeholder="Комментарий">
+          </td>
+          <td>
+            <button onclick="updateBonus(${index})">Обновить</button>
+          </td>
+        `;
+        promoTable.appendChild(row);
+      });
+    }
+
+    // Функция отображения операций
+    function displayOperations() {
+      const operationsTable = document.getElementById('operationsTable');
+      operationsTable.innerHTML = ''; // Очистить таблицу перед обновлением
+
+      users.forEach(user => {
+        user.operations.forEach(operation => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${operation.date}</td>
+            <td>${user.promokod}</td>
+            <td>${user.fio}</td>
+            <td>${operation.type}</td>
+            <td>${operation.amount}</td>
+            <td>${operation.comment}</td>
+          `;
+          operationsTable.appendChild(row);
+        });
+      });
+    }
+
+    // Фильтрация пользователей по дате
+    function applyDateFilter() {
+      const filterDate = document.getElementById('filterDate').value;
+      let filteredUsers = users;
+
+      if (filterDate) {
+        filteredUsers = users.filter(user => {
+          return user.operations.some(operation => operation.date === filterDate);
+        });
+      }
+
+      displayPromoCodes(filteredUsers);
+      displayOperations();
+    }
+
+    // Функция обновления бонусов
+    function updateBonus(index) {
+      const user = users[index];
+      const inputField = document.getElementById(`bonusInput${index}`);
+      const commentField = document.getElementById(`commentInput${index}`);
+      const bonusAmount = parseFloat(inputField.value);
+      const comment = commentField.value;
+      const currentDate = new Date().toISOString().split('T')[0];  // Получаем текущую дату в формате YYYY-MM-DD
+
+      if (!isNaN(bonusAmount)) {
+        let operationType = '';
+        
+        // Если бонус положительный, зачисляем
+        if (bonusAmount > 0) {
+          user.totalAdded += bonusAmount;  // Обновляем общую сумму зачисленных бонусов
+          operationType = 'Зачисление';
+        }
+
+        // Если бонус отрицательный, списываем
+        if (bonusAmount < 0) {
+          user.totalDeducted -= bonusAmount;  // Списываем бонусы из оставшегося баланса
+          operationType = 'Списание';
+        }
+
+        // Сохраняем операцию
+        user.operations.push({
+          date: currentDate,
+          type: operationType,
+          amount: bonusAmount,
+          comment: comment || 'Без комментария'
+        });
+
+        inputField.value = '';  // Очищаем поле ввода
+        commentField.value = '';  // Очищаем поле комментария
+        displayPromoCodes(users);  // Обновить отображение таблицы
+        displayOperations();  // Обновить таблицу операций
+      } else {
+        alert('Введите корректное число');
+      }
+    }
+
+    // Инициализация
+    displayPromoCodes(users);
+    displayOperations();
+  </script>
+
+</body>
+</html>
